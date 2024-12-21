@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "VxkqOKKS6EgB2Xn15LvFkPBYQXuSKlWXGtZdonK7Joc=",
+  "Source": "BookManagementSystem.API",
+  "BasePath": "_content/BookManagementSystem.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,0 +1,161 @@
+@page "/book/add"
+@page "/book/edit/{Id:int}"
+@using BookManagementSystem.Web.Models
+@using BookManagementSystem.Web.Services
+@inject BookService BookService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<PageTitle>@(Id == null ? "Add" : "Edit") Book</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h2>@(Id == null ? "Add" : "Edit") Book</h2>
+
+            @if (successMessage != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @successMessage
+                    <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                </div>
+            }
+
+            @if (errorMessage != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+                </div>
+            }
+
+            <EditForm Model="@book" OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <InputText id="title" class="form-control" @bind-Value="book.Title" />
+                    <ValidationMessage For="@(() => book.Title)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <InputText id="author" class="form-control" @bind-Value="book.Author" />
+                    <ValidationMessage For="@(() => book.Author)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="genre" class="form-label">Genre</label>
+                    <InputText id="genre" class="form-control" @bind-Value="book.Genre" />
+                    <ValidationMessage For="@(() => book.Genre)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="publishedYear" class="form-label">Published Year</label>
+                    <InputNumber id="publishedYear" class="form-control" @bind-Value="book.PublishedYear" />
+                    <ValidationMessage For="@(() => book.PublishedYear)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <InputNumber id="price" class="form-control" @bind-Value="book.Price" />
+                    <ValidationMessage For="@(() => book.Price)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="discountPercentage" class="form-label">Discount Percentage</label>
+                    <InputNumber id="discountPercentage" class="form-control" @bind-Value="book.DiscountPercentage" />
+                    <ValidationMessage For="@(() => book.DiscountPercentage)" />
+                </div>
+
+                <div class="mb-3 d-flex justify-content-between">
+                    <div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" @onclick="NavigateToHome">Back to List</button>
+                    </div>
+                    @if (Id.HasValue)
+                    {
+                        <button type="button" class="btn btn-success" @onclick="SaveAndAddNew">Save & Add New</button>
+                    }
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Book book = new();
+    private string? successMessage;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            try
+            {
+                var existingBook = await BookService.GetBookByIdAsync(Id.Value);
+                if (existingBook != null)
+                {
+                    book = existingBook;
+                }
+                else
+                {
+                    errorMessage = "Book not found";
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error loading book: {ex.Message}";
+            }
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (Id.HasValue)
+            {
+                await BookService.UpdateBookAsync(Id.Value, book);
+                successMessage = "Book updated successfully!";
+            }
+            else
+            {
+                await BookService.CreateBookAsync(book);
+                successMessage = "Book created successfully!";
+                // Clear the form for new entry
+                book = new Book();
+            }
+            await JSRuntime.InvokeVoidAsync("console.log", "Book saved successfully");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving book: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", "Error saving book:", ex);
+        }
+    }
+
+    private async Task SaveAndAddNew()
+    {
+        try
+        {
+            await BookService.UpdateBookAsync(Id.Value, book);
+            NavigationManager.NavigateTo("/book/add");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving book: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("console.error", "Error saving book:", ex);
+        }
+    }
+
+    private void NavigateToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

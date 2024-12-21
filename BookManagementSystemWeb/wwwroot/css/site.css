@@ -1,0 +1,46 @@
+.rating {
+    color: #ffd700;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.star {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.star:hover {
+    transform: scale(1.2);
+}
+
+.star.filled {
+    color: #ffd700;
+}
+
+.star:not(.filled) {
+    color: #ccc;
+}
+
+.card {
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.table-responsive {
+    margin-top: 1rem;
+}
+
+.btn {
+    margin-right: 0.5rem;
+}
+
+.validation-message {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}
